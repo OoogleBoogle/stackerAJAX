@@ -117,4 +117,11 @@ $(document).ready( function() {
 		var tags = $(this).find("input[name='tags']").val();
 		getUnanswered(tags);
 	});
+
+	$('.inspiration-getter').on('submit', function(e) {
+		e.preventDefault();
+		$('.results').html("");
+		var query = $('input[name="answerers"]').val();
+		getTopUsers(query);
+	})
 });
