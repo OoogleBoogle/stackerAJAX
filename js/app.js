@@ -1,10 +1,10 @@
 // this function takes the question object returned by the StackOverflow request
 // and returns new result to be appended to DOM
-var showQuestion = function(question) {
-	
+var showQuestion = function (question) {
+
 	// clone our result template code
 	var result = $('.templates .question').clone();
-	
+
 	// Set the question properties in result
 	var questionElem = result.find('.question-text a');
 	questionElem.attr('href', question.link);
@@ -49,15 +49,15 @@ var showError = function(error){
 // takes a string of semi-colon separated tags to be searched
 // for on StackOverflow
 var getUnanswered = function(tags) {
-	
+
 	// the parameters we need to pass in our request to StackOverflow's API
-	var request = { 
+	var request = {
 		tagged: tags,
 		site: 'stackoverflow',
 		order: 'desc',
 		sort: 'creation'
 	};
-	
+
 	$.ajax({
 		url: "http://api.stackexchange.com/2.2/questions/unanswered",
 		data: request,
@@ -81,6 +81,32 @@ var getUnanswered = function(tags) {
 	});
 };
 
+var showTopUsers = function (item) {
+	var topUser = $('.templates .top-users').clone();
+	topUser.find('img').attr('src', item.user.profile_image);
+	topUser.find('.user-name a').attr('href', item.user.link).text(item.user.display_name);
+	topUser.find('.post-count').text(item.post_count);
+	topUser.find('.user-score').text(item.score);
+	return topUser;
+}
+
+var getTopUsers = function(tag) {
+	$.ajax({
+		url: 'http://api.stackexchange.com/2.2/tags/' + tag + '/top-answerers/all_time?site=stackoverflow',
+		dataType: "jsonp",
+		type: "GET",
+	}).done(function(data) {
+		data.items.map(function(item) {
+			// console.log(item);
+			var user = showTopUsers(item);
+			user.removeClass('hidden');
+			$('.results').append(user);
+		});
+	}).fail(function(jqXHR, error){
+		var errorElem = showError(error);
+		$('.search-results').append(errorElem);
+	});
+}
 
 $(document).ready( function() {
 	$('.unanswered-getter').submit( function(e){
